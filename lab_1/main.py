@@ -1,5 +1,5 @@
 """
-Labour work #1
+Labour work #1.0
 Count frequencies dictionary by the given arbitrary text
 """
 
