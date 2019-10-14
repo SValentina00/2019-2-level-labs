@@ -40,10 +40,10 @@ def get_top_n(dict_clear, top_n):
     res = [х[0] for х in list_dict]
     top = list()
     if top_n > 0:
-        
         for i in res:
             if ind < top_n:
                 top.append(res[ind])
                 ind += 1
         done = tuple(top)
         return done
+    return ()
