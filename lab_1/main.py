@@ -5,13 +5,13 @@ Count frequencies dictionary by the given arbitrary text
 
 def calculate_frequences(text):
     prohibited_marks = ['.', ',', '!', '?', ';', ':', '"', "'", '—', '-',
-                        '$', '%', '*', '@', '^', '&', '~', '*', '+', '=']
+                        '$', '%', '*', '@', '^', '&', '~', '*', '+', '=','\n']
     if isinstance(text, str):
         text = text.lower()
         for word in text:
             if word.isdigit() or word in prohibited_marks:
                 text = text.replace(word, ' ')
-        splitted = (text.replace('\n', ' ')).split()
+        splitted = text.split()
         dictionary = {}
         for key in splitted:
             if key in dictionary:
