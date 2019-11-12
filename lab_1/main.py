@@ -1,124 +1,93 @@
 """
-Labour work #1.1
-Count frequencies dictionary by the given arbitrary text
-"""
+Labour work #2. Levenshtein distance.
+""" 
 
-def calculate_frequences(text):
-    prohibited_marks = ['.', ',', '!', '?', ';', ':', '"', "'", '—', '-',
-                        '$', '%', '*', '@', '^', '&', '~', '*', '+', '=','\n']
-    if isinstance(text, str):
-        text = text.lower()
-        for word in text:
-            if word.isdigit() or word in prohibited_marks:
-                text = text.replace(word, ' ')
-        splitted = text.split()
-        dictionary = {}
-        for key in splitted:
-            if key in dictionary:
-                value = dictionary[key]
-                dictionary[key] = value + 1
-            else:
-                dictionary[key] = 1
-        return dictionary
-    return {}
-def filter_stop_words(dictionary, stop_words):
-    if dictionary and stop_words is not None:
-        dict_clear = dictionary.copy()
-        for key in dictionary:
-            if not isinstance(key, str):
-                del dict_clear[key]
-        for key in list(dict_clear.keys()):
-            if key in stop_words:
-                del dict_clear[key]
-        return dict_clear
-    return {}
+def generate_edit_matrix(num_rows, num_cols):
+    zero_matrix = []
+    if isinstance(num_rows, int) and isinstance(num_cols, int)\
+        and num_cols > 0 and num_rows > 0:
+        for el in range(num_rows):
+            string = []
+            for el in range(num_cols):
+                string.append(0)
+            zero_matrix.append(string)
+        return zero_matrix
+    else:
+        return zero_matrix
 
-def calculate_frequences(text: str) -> dict:
-    """
-    Calculates number of times each word appears in the text
-    """
-    frequencies = {}
-    new_text = ''
-    if text is None:
-        return frequencies
-    if not isinstance(text, str):
-        text = str(text)
-    for symbol in text:
-        if symbol.isalpha() or symbol == ' ':
-            new_text += symbol
-    new_text = new_text.lower()
-    words = new_text.split()
-    for key in words:
-        key = key.lower()
-        if key in frequencies:
-            value = frequencies[key]
-            frequencies[key] = value + 1
-        else:
-            frequencies[key] = 1
-    return frequencies
+def initialize_edit_matrix(edit_matrix, add_weight, remove_weight):
+    edit_matrix = list(edit_matrix)
+    if edit_matrix != [] and edit_matrix[0] != []\
+       and isinstance(add_weight, int) and isinstance(remove_weight, int):
+        edit_matrix[0][0] = 0
+        for i in range(1, len(edit_matrix)):
+            edit_matrix[i][0] = edit_matrix[i - 1][0] + remove_weight
+        for j in range(1, len(edit_matrix[0])):
+            edit_matrix[0][j] = edit_matrix[0][j - 1] + add_weight
+        return edit_matrix
+    else:
+        return edit_matrix
 
+def minimum_value(numbers):
+    if isinstance(numbers, tuple):
+        res = min(list(numbers))
+        return res
+    else:
+        return 0
 
-def filter_stop_words(frequencies: dict, stop_words: tuple) -> dict:
-    """
-    Removes all stop words from the given frequencies dictionary
-    """
-    if frequencies is None:
-        frequencies = {}
-        return frequencies
-    for word in list(frequencies):
-        if not isinstance(word, str):
-            del frequencies[word]
-    if not isinstance(stop_words, tuple):
-        return frequencies
-    for word in stop_words:
-        if not isinstance(word, str):
-            continue
-        if frequencies.get(word) is not None:
-            del frequencies[word]
-    return frequencies
+def fill_edit_matrix(edit_matrix, substitute_weight, add_weight, remove_weight, original_word, target_word):
+    edit_matrix = list(edit_matrix)
+    if edit_matrix != []\
+            and isinstance(add_weight, int) \
+            and isinstance(remove_weight, int) \
+            and isinstance(substitute_weight, int) \
+            and isinstance(original_word, str) \
+            and isinstance(target_word, str) \
+            and original_word is not None \
+            and target_word is not None:
+        for i in range(1, len(edit_matrix)):
+            for j in range(1, len(edit_matrix[0])):
+                adding = edit_matrix[i][j - 1] + add_weight
+                removing = edit_matrix[i - 1][j] + remove_weight
+                if original_word[i - 1] == target_word[j - 1]:
+                    substitution = edit_matrix[i - 1][j - 1]
+                else:
+                    substitution = edit_matrix[i - 1][j - 1] + substitute_weight
+                edit_matrix[i][j] = minimum_value(tuple([adding, removing, substitution]))
+        return edit_matrix
+    else:
+        return edit_matrix
 
 
-def get_top_n(frequencies: dict, top_n: int) -> tuple:
-    """
-    Takes first N popular words
-    :param
-    """
-    if not isinstance(top_n, int):
-        frequencies = ()
-        return frequencies
-    if top_n < 0:
-        top_n = 0
-    elif top_n > len(frequencies):
-        top_n = len(frequencies)
-    top_words = sorted(frequencies, key=lambda x: int(frequencies[x]), reverse=True)
-    best = tuple(top_words[:top_n])
-    return best
+def find_distance(original_word, target_word, add_weight, remove_weight, substitute_weight):
+    if isinstance(original_word, str) and isinstance(target_word, str)\
+            and isinstance(add_weight, int) and isinstance(remove_weight, int) and isinstance(substitute_weight, int):
+        matrix = tuple(generate_edit_matrix(len(original_word) + 1, len(target_word) + 1))
+        matrix = initialize_edit_matrix(matrix, add_weight, remove_weight)
+        filled_matrix = fill_edit_matrix(matrix, add_weight, remove_weight, substitute_weight, original_word, target_word)
+        result = filled_matrix[-1][-1]
+        return result
+    else:
+        return -1
 
-
-def read_from_file(path_to_file: str, lines_limit: int) -> str:
-    """
-    Read text from file
-    """
-    file = open(path_to_file)
-    counter = 0
-    text = ''
-    if file is None:
-        return text
+def read_from_file(text_file):
+    file = open(text_file, 'r')
+    matrix = []
     for line in file:
-        text += line
-        counter += 1
-        if counter == lines_limit:
-            break
-    file.close()
-    return text
+        row = []
+        for el in line:
+            if el.isdigit():
+                el = int(el)
+                row.append(el)
+        matrix.append(row)
+    return matrix
 
-
-def write_to_file(path_to_file: str, content: tuple):
-    """
-    Creates new file
-    """
-    file = open(path_to_file, 'w')
-    for i in content:
-        file.write(i)
-        file.write('\n')
+def write_to_file(edit_matrix, text_file):
+    file = open(text_file, 'w')
+    for line in edit_matrix:
+        row = ''
+        for el in line:
+            row += str(el) + ','
+        file.write(row + '\n')
     file.close()
+
