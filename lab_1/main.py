@@ -35,29 +35,26 @@ def minimum_value(numbers):
     else:
         return 0
 
-def fill_edit_matrix(edit_matrix, substitute_weight, add_weight, remove_weight, original_word, target_word):
-    edit_matrix = list(edit_matrix)
-    if edit_matrix != []\
-            and isinstance(add_weight, int) \
-            and isinstance(remove_weight, int) \
-            and isinstance(substitute_weight, int) \
-            and isinstance(original_word, str) \
-            and isinstance(target_word, str) \
-            and original_word is not None \
-            and target_word is not None:
-        for i in range(1, len(edit_matrix)):
-            for j in range(1, len(edit_matrix[0])):
-                adding = edit_matrix[i][j - 1] + add_weight
-                removing = edit_matrix[i - 1][j] + remove_weight
-                if original_word[i - 1] == target_word[j - 1]:
-                    substitution = edit_matrix[i - 1][j - 1]
-                else:
-                    substitution = edit_matrix[i - 1][j - 1] + substitute_weight
-                edit_matrix[i][j] = minimum_value(tuple([adding, removing, substitution]))
-        return edit_matrix
-    else:
-        return edit_matrix
-
+def fill_edit_matrix(edit_matrix, add_weight, remove_weight, substitute_weight, original_word, target_word):
+    if not isinstance(add_weight, int) or not isinstance(remove_weight, int) or not isinstance(substitute_weight, int)\
+            or not isinstance(original_word, str) or not isinstance(target_word, str):
+        return list(edit_matrix)
+    l_matrix = list(edit_matrix)
+    for i, el in enumerate(l_matrix):
+        if i == 0:
+            continue
+        for j, z in enumerate(el):
+            if j == 0:
+                continue
+            removing = l_matrix[i - 1][j] + remove_weight
+            adding = l_matrix[i][j - 1] + add_weight
+            if original_word[i - 1] == target_word[j - 1]:
+                substitution = l_matrix[i - 1][j - 1] + 0
+            else:
+                substitution = l_matrix[i - 1][j - 1] + substitute_weight
+            numbers = tuple([removing, adding, substitution])
+            el[j] = minimum_value(numbers)
+    return l_matrix
 
 def find_distance(original_word, target_word, add_weight, remove_weight, substitute_weight):
     if isinstance(original_word, str) and isinstance(target_word, str)\
