@@ -1,6 +1,6 @@
 """
 Labour work #3
- Building an own N-gram model
+Building an own N-gram model
 """
 
 import math
